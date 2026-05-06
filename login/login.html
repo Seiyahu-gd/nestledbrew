@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — NestledBrew</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/homepage.css">
+  <style>
+    /* Auth page specific */
+    body { min-height: 100vh; }
+
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      padding: 100px 24px 40px;
+    }
+    .auth-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 10% 30%, rgba(201,138,78,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 90% 70%, rgba(58,35,24,0.5) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .auth-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    .auth-container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      max-width: 900px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px var(--shadow-lg);
+      position: relative;
+      z-index: 1;
+      animation: authEnter 0.7s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes authEnter {
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* LEFT PANEL */
+    .auth-panel {
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg-secondary) 100%);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-panel::before {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,138,78,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .auth-panel-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .auth-panel-logo {
+      width: 52px;
+      height: 52px;
+      color: var(--accent);
+    }
+    .auth-panel-logo svg { width: 100%; height: 100%; }
+    .auth-panel-name {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--text);
+    }
+    .auth-panel-tagline {
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .auth-panel-perks {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .auth-perk {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .auth-perk-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .auth-perk-text strong {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .auth-perk-text span {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--text-muted);
+    }
+
+    .auth-panel-footer {
+      font-family: var(--font-body);
+      font-size: 0.74rem;
+      color: var(--text-dim);
+    }
+
+    /* RIGHT PANEL */
+    .auth-form-panel {
+      padding: 48px 44px;
+      background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .auth-tab {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 0;
+      margin-right: 28px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .auth-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .auth-form { display: flex; flex-direction: column; gap: 18px; }
+    .auth-form.hidden { display: none; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-family: var(--font-body);
+      font-size: 0.74rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.97rem;
+      font-weight: 400;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .form-input::placeholder { color: var(--text-dim); font-weight: 300; }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .form-submit {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      background: var(--accent);
+      border: none;
+      color: #1A0E0A;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .form-submit:hover {
+      background: var(--accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+    .form-submit:active { transform: translateY(0); }
+
+    .form-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-body);
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin: 4px 0;
+    }
+    .form-divider::before, .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .form-note {
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    .form-note button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color var(--transition);
+    }
+    .form-note button:hover { color: var(--accent-light); }
+
+    .form-forgot {
+      text-align: right;
+      margin-top: -10px;
+    }
+    .form-forgot button {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+    .form-forgot button:hover { color: var(--accent); }
+
+    /* Success state */
+    .auth-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      text-align: center;
+      flex: 1;
+      padding: 24px 0;
+    }
+    .auth-success.visible { display: flex; }
+    .success-icon { font-size: 3.2rem; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    .success-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--text);
+    }
+    .success-msg {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--text-muted);
+      max-width: 280px;
+    }
+
+    /* Responsive */
+    @media (max-width: 720px) {
+      .auth-container { grid-template-columns: 1fr; }
+      .auth-panel { display: none; }
+      .auth-form-panel { padding: 36px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page Loader -->
+  <div class="page-loader" id="pageLoader">
+    <div class="loader-inner">
+      <div class="loader-logo">N</div>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="toast" id="globalToast"></div>
+
+  <!-- Minimal Nav -->
+  <header id="mainHeader">
+    <div class="nav-main" style="justify-content: space-between;">
+      <a href="homepage.html" class="brand-link">
+        <div class="logo-mark">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5"/>
+            <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Fraunces, serif" font-size="16" font-style="italic" fill="currentColor">N</text>
+          </svg>
+        </div>
+        <span class="brand-text">NestledBrew</span>
+      </a>
+      <div class="nav-topstrip-actions">
+        <button onclick="toggleMode()" id="modeBtn">☀ Light Mode</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="auth-grain"></div>
+
+  <div class="auth-page">
+    <div class="auth-container">
+
+      <!-- LEFT: Brand Panel -->
+      <div class="auth-panel">
+        <div class="auth-panel-brand">
+          <div class="auth-panel-logo">
+            <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="26" cy="26" r="24" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="26" cy="26" r="18" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+              <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Fraunces, serif" font-size="22" font-style="italic" fill="currentColor">N</text>
+            </svg>
+          </div>
+          <div class="auth-panel-name">NestledBrew</div>
+          <div class="auth-panel-tagline">
+            Join our community of coffee lovers. Every cup earns you more.
+          </div>
+        </div>
+
+        <div class="auth-panel-perks">
+          <div class="auth-perk">
+            <div class="auth-perk-icon">☕</div>
+            <div class="auth-perk-text">
+              <strong>Earn Rewards Points</strong>
+              <span>Get points with every order and unlock exclusive perks</span>
+            </div>
+          </div>
+          <div class="auth-perk">
+            <div class="auth-perk-icon">🎂</div>
+            <div class="auth-perk-text">
+              <strong>Free Birthday Drink</strong>
+              <span>A complimentary drink of your choice on your birthday</span>
+            </div>
+          </div>
+          <div class="auth-perk">
+            <div class="auth-perk-icon">✨</div>
+            <div class="auth-perk-text">
+              <strong>Early Menu Access</strong>
+              <span>Be the first to try new seasonal drinks before anyone else</span>
+            </div>
+          </div>
+          <div class="auth-perk">
+            <div class="auth-perk-icon">🚀</div>
+            <div class="auth-perk-text">
+              <strong>Priority Queuing</strong>
+              <span>Skip the wait during rush hour with member queuing</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-panel-footer">
+          © 2026 NestledBrew · Made with ☕ in Cebu City
+        </div>
+      </div>
+
+      <!-- RIGHT: Form Panel -->
+      <div class="auth-form-panel">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="signinTabBtn" onclick="switchAuthTab('signin')">Sign In</button>
+          <button class="auth-tab" id="signupTabBtn" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <div class="auth-form" id="signinForm">
+          <div style="margin-bottom:4px">
+            <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:600;font-style:italic;color:var(--text);margin-bottom:6px;">Welcome back</div>
+            <div style="font-family:var(--font-body);font-size:0.9rem;font-weight:300;color:var(--text-muted);">Sign in to your NestledBrew account</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" id="signinEmail" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="signinPassword" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="form-forgot">
+            <button onclick="showToast('Password reset link sent to your email!')">Forgot password?</button>
+          </div>
+
+          <button class="form-submit" onclick="handleSignIn()">Sign In</button>
+
+          <div class="form-divider">or</div>
+
+          <div class="form-note">
+            Don't have an account? <button onclick="switchAuthTab('signup')">Create one</button>
+          </div>
+        </div>
+
+        <!-- SIGN UP FORM -->
+        <div class="auth-form hidden" id="signupForm">
+          <div style="margin-bottom:4px">
+            <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:600;font-style:italic;color:var(--text);margin-bottom:6px;">Join NestledBrew</div>
+            <div style="font-family:var(--font-body);font-size:0.9rem;font-weight:300;color:var(--text-muted);">Create your free account and start earning rewards</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" id="signupFirst" placeholder="Juan" autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" id="signupLast" placeholder="Dela Cruz" autocomplete="family-name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" id="signupEmail" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="signupPassword" placeholder="Min. 8 characters" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-input" id="signupDob">
+          </div>
+
+          <button class="form-submit" onclick="handleSignUp()">Create Account — It's Free</button>
+
+          <div class="form-note">
+            Already have an account? <button onclick="switchAuthTab('signin')">Sign in</button>
+          </div>
+        </div>
+
+        <!-- SUCCESS STATE -->
+        <div class="auth-success" id="authSuccess">
+          <div class="success-icon">☕</div>
+          <div class="success-title" id="successTitle">Welcome!</div>
+          <div class="success-msg" id="successMsg"></div>
+          <a href="homepage.html" class="btn btn-primary btn-lg" style="margin-top:8px">Go to Homepage</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Handle hash for direct signup link
+    if (window.location.hash === '#signup') {
+      switchAuthTab('signup');
+    }
+
+    function switchAuthTab(tab) {
+      const signinForm = document.getElementById('signinForm');
+      const signupForm = document.getElementById('signupForm');
+      const signinBtn = document.getElementById('signinTabBtn');
+      const signupBtn = document.getElementById('signupTabBtn');
+
+      signinForm.classList.toggle('hidden', tab !== 'signin');
+      signupForm.classList.toggle('hidden', tab !== 'signup');
+      signinBtn.classList.toggle('active', tab === 'signin');
+      signupBtn.classList.toggle('active', tab === 'signup');
+    }
+
+    function showSuccess(title, msg) {
+      document.getElementById('signinForm').classList.add('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+      document.querySelectorAll('.auth-tab').forEach(t => t.style.opacity = '0.3');
+
+      const success = document.getElementById('authSuccess');
+      document.getElementById('successTitle').textContent = title;
+      document.getElementById('successMsg').textContent = msg;
+      success.classList.add('visible');
+    }
+
+    function handleSignIn() {
+      const email = document.getElementById('signinEmail').value.trim();
+      const password = document.getElementById('signinPassword').value;
+
+      if (!email || !password) {
+        showToast('Please fill in all fields.');
+        return;
+      }
+      if (!email.includes('@')) {
+        showToast('Please enter a valid email.');
+        return;
+      }
+
+      // Simulate sign-in
+      showSuccess('Welcome back! ☕', 'You\'re now signed in to NestledBrew. Your rewards await you.');
+    }
+
+    function handleSignUp() {
+      const first = document.getElementById('signupFirst').value.trim();
+      const last = document.getElementById('signupLast').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+
+      if (!first || !last || !email || !password) {
+        showToast('Please fill in all fields.');
+        return;
+      }
+      if (!email.includes('@')) {
+        showToast('Please enter a valid email.');
+        return;
+      }
+      if (password.length < 8) {
+        showToast('Password must be at least 8 characters.');
+        return;
+      }
+
+      // Simulate sign-up
+      showSuccess(`Welcome, ${first}! 🎉`, `Your NestledBrew account is ready. You've been enrolled in our Rewards programme — you start at Bean Starter tier with 0 points. Go earn some!`);
+    }
+  </script>
+</body>
+</html>
