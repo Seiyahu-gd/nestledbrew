@@ -30,10 +30,10 @@ html { scroll-behavior: smooth; }
   --rewards-bg:   #1C1108;
   --footer-bg:    #100904;
 
-  /* Typography — Highly readable, distinctive */
-  --font-display: 'Fraunces', Georgia, serif;       /* Optical size serif, very distinctive */
-  --font-body:    'DM Sans', system-ui, sans-serif; /* Modern, clean, extremely readable */
-  --font-serif:   'Libre Baskerville', Georgia, serif; /* For pull quotes / accents */
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;       
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-serif:   'Libre Baskerville', Georgia, serif; 
 
   --radius:    10px;
   --radius-lg: 20px;
