@@ -14,13 +14,12 @@ window.addEventListener('load', () => {
 /* ===== DARK / LIGHT MODE ===== */
 function applyMode(isLight) {
   document.body.classList.toggle('light-mode', isLight);
-  const btn = document.getElementById('modeBtn');
-  if (btn) btn.textContent = isLight ? '🌙 Dark Mode' : '☀ Light Mode';
+  // Using querySelectorAll ensures both buttons (top and main) update if they exist
+  const buttons = document.querySelectorAll('#modeBtn, .topstrip-mode-btn');
+  buttons.forEach(btn => {
+    if (btn) btn.textContent = isLight ? '🌙 Dark Mode' : '☀ Light Mode';
+  });
   localStorage.setItem('nestled_light', isLight ? '1' : '0');
-}
-
-function toggleMode() {
-  applyMode(!document.body.classList.contains('light-mode'));
 }
 
 // Restore saved preference

@@ -75,6 +75,7 @@ body {
   overflow-x: hidden;
 }
 
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -215,6 +216,52 @@ header.scrolled {
   transition: color var(--transition);
 }
 
+/* Actions Area */
+.user-profile-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(0,0,0,0.1);
+}
+
+.nav-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+/* */
+.profile-circle {
+  width: 38px;
+  height: 38px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(201, 138, 78, 0.3);
+}
+
+.user-name-text {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  font-size: 0.8rem;
+  color: #888;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
 .nav-links {
   display: flex;
   gap: 4px;
@@ -253,9 +300,9 @@ header.scrolled {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 20px;
 }
+
 
 /* ===== BUTTONS ===== */
 .btn {
@@ -283,6 +330,12 @@ header.scrolled {
   background: var(--accent-glow);
   transform: translateY(-1px);
 }
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
 .btn-primary {
   background: var(--accent);
   border-color: var(--accent);
@@ -302,22 +355,40 @@ header.scrolled {
 
 /* Hamburger */
 .hamburger {
-  display: none;
+  display: none; /* Hidden on desktop */
   flex-direction: column;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
-  margin-left: auto;
+  padding: 5px;
 }
+
 .hamburger span {
-  display: block;
-  width: 22px;
-  height: 1.5px;
-  background: var(--text-muted);
-  transition: all var(--transition);
+  width: 25px;
+  height: 2px;
+  background: var(--text);
+  transition: 0.3s;
 }
+
+@media (max-width: 992px) {
+  .nav-links {
+    display: none; /* Hide center links on mobile */
+  }
+  
+  .hamburger {
+    display: flex; /* Show hamburger on mobile */
+  }
+  
+  .nav-actions {
+    gap: 10px;
+  }
+  
+  .user-name-text {
+    display: none; /* Hide name on small screens, keep circle */
+  }
+}
+
 .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
 .hamburger.open span:nth-child(2) { opacity: 0; }
 .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
@@ -619,6 +690,7 @@ section {
   color: var(--accent);
   margin-bottom: 12px;
   display: block;
+  text-align: center;
 }
 .section-title {
   font-family: var(--font-display);
@@ -628,6 +700,7 @@ section {
   color: var(--text);
   margin-bottom: 18px;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 .section-title em {
   font-style: italic;
@@ -949,7 +1022,7 @@ body.light-mode .leaflet-tile-pane { filter: none; }
 }
 .rewards-card-pts-label {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: .75rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -971,22 +1044,11 @@ body.light-mode .leaflet-tile-pane { filter: none; }
   color: var(--text-muted);
   margin-bottom: 12px;
 }
-.rewards-card-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
+
 .rewards-card-fill {
   height: 100%;
   background: linear-gradient(to right, var(--accent-2), var(--accent-light));
   border-radius: 2px;
-}
-.rewards-card-progress-text {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  color: var(--text-dim);
 }
 
 /* ===== TESTIMONIALS ===== */
@@ -1094,7 +1156,10 @@ footer {
   background-color: var(--footer-bg);
   padding: 72px 60px 40px;
   border-top: 1px solid var(--border);
+  overflow: hidden;
 }
+
+
 body.light-mode footer {
   color: var(--text);
 }
