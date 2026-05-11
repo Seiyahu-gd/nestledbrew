@@ -53,9 +53,12 @@
     </nav>
 
     <div class="nav-actions">
+    <a href="cart.php" class="cart-nav-link">
+    🛒 <span class="cart-nav-label">Cart</span>
+    </a>
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
-          <a href="rewards.php" class="nav-profile-link">
+          <a href="profile.php" class="nav-profile-link">
             <div class="profile-circle">
               <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
             </div>
@@ -64,8 +67,8 @@
           <a href="logout.php" class="logout-btn">Logout</a>
         </div>
       <?php else: ?>
-        <a href="login.html" class="nav-link">Sign In</a>
-        <a href="login.html#signup" class="btn btn-primary">Join Now</a>
+        <a href="login.php" class="nav-link">Sign In</a>
+        <a href="login.php#signup" class="btn btn-primary">Join Now</a>
       <?php endif; ?>
     </div>
 
@@ -96,13 +99,13 @@
        are found in the quiet spaces between the noise. 
        Born from a love for nature and a craving for 
        genuine connection, our shop was designed to be more than 
-       just a stop on your commute, its a place to root yourself, 
+       just a stop on your commute, it's a place to root yourself, 
        even if just for a morning
       </p>
     </div>
 
 
-  <section id="team">
+  <section id="team_people">
     <div class="section-header">
       <p class="section-eyebrow reveal">The People</p>
       <h2 class="section-title reveal reveal-delay-1">Our Founding Team</h2>
@@ -112,14 +115,14 @@
       <div class="team-card reveal">
         <div class="team-img-wrapper">
         <img src="picutres/johnee.webp" alt="Johnne Reinz Jarito" class="team-photo"> </div>
-        <div class="team-name">Johnne Reinz Jarito</div>
+        <div class="team-name">Jhonne Reinz Jarito</div>
         <div class="team-role">Barista</div>
         <p class="team-bio">A dedicated latte artist who spent three months perfecting the "Cebuano Sun" design.</p>
       </div>
 
       <div class="team-card reveal reveal-delay-1">
         <div class="team-img-wrapper">
-        <img src="picutres/" alt="Lyan Cryster Cuesta" class="team-photo"> </div>
+        <img src="picutres/lyan.webp" alt="Lyan Cryster Cuesta" class="team-photo"> </div>
         <div class="team-name">Lyan Cryster Cuesta</div>
         <div class="team-role">Barista</div>
         <p class="team-bio">A certified bean enthusiast who keeps a personal journal tracking the flavor profiles of every coffee origin he has ever tasted.</p>

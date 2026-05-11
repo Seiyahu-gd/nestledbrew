@@ -57,9 +57,13 @@
     </nav>
 
     <div class="nav-actions">
+      <a href="cart.php" class="cart-nav-link">
+    🛒 <span class="cart-nav-label">Cart</span>
+      </a>
+
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
-          <a href="rewards.php" class="nav-profile-link">
+          <a href="profile.php" class="nav-profile-link">
             <div class="profile-circle">
               <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
             </div>
@@ -68,8 +72,8 @@
           <a href="logout.php" class="logout-btn">Logout</a>
         </div>
       <?php else: ?>
-        <a href="login.html" class="nav-link">Sign In</a>
-        <a href="login.html#signup" class="btn btn-primary">Join Now</a>
+        <a href="login.php" class="nav-link">Sign In</a>
+        <a href="login.php#signup" class="btn btn-primary">Join Now</a>
       <?php endif; ?>
     </div>
 
@@ -123,7 +127,7 @@
           A sanctuary for coffee lovers and book enthusiasts in the heart of Cebu City. We source ethically, roast in-house, and brew with soul — so every cup is an experience worth returning for.
         </p>
         <div class="hero-ctas animate-fadeUp" style="--d:0.8s">
-          <a href="menu.html" class="btn btn-primary btn-lg">Explore Menu</a>
+          <a href="menu.php" class="btn btn-primary btn-lg">Explore Menu</a>
           <a href="about.php" class="btn btn-lg">Our Story</a>
         </div>
         <div class="hero-stats animate-fadeUp" style="--d:1.0s">
@@ -195,7 +199,7 @@
     <div class="menu-grid" id="menuGrid"></div>
 
     <div class="menu-cta-row reveal">
-      <a href="menu.html" class="btn btn-primary btn-lg">View Full Menu</a>
+      <a href="menu.php" class="btn btn-primary btn-lg">View Full Menu</a>
     </div>
   </section>
 
@@ -262,7 +266,7 @@
           </div>
         </div>
         <div style="margin-top:32px" class="reveal reveal-delay-4">
-          <a href="login.html#signup" class="btn btn-primary btn-lg">Join Rewards — It's Free</a>
+          <a href="login.php#signup" class="btn btn-primary btn-lg">Join Rewards — It's Free</a>
           <a href="rewards.php" class="btn btn-lg" style="margin-left:12px">Learn More</a>
         </div>
       </div>
@@ -271,9 +275,9 @@
         <div class="rewards-card">
           <div class="rewards-card-shimmer"></div>
           <div class="rewards-card-brand">NestledBrew</div>
-          <div class="points-number rewards-card-pts-label"> <?php echo isset($_SESSION['user_points']) ? $_SESSION['user_points'] : '0'; ?> </div>  
+          <div class="points-number rewards-card-pts-label"> <?php echo isset($_SESSION['user_points']) ? $_SESSION['user_points'] : '0'; ?> </div>
           <div class="rewards-card-pts-label">BrewPoints</div>
-          <span class="user-name-text rewards-card-name "><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+          <span class="user-name-text rewards-card-name "><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></span>
         </div>
       </div>
     </div>

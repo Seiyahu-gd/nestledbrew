@@ -1,4 +1,11 @@
-<?php session_start(); ?>
+<?php
+session_start();
+// If already logged in, send straight to homepage — no back button can return here
+if (isset($_SESSION['user_id'])) {
+    header('Location: homepage.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="homepage.css">
-  <link rel="stylesheet" href="login.css"> 
+  <link rel="stylesheet" href="login.css">
 </head>
 <body>
 
@@ -113,18 +120,22 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input type="email" class="form-input" id="signinEmail" placeholder="your@email.com" autocomplete="email">
+            <label class="form-label" for="signinEmail">Email Address</label>
+            <input type="email" class="form-input" id="signinEmail" name="email"
+              placeholder="your@email.com" autocomplete="email"
+              onkeydown="if(event.key==='Enter') handleSignIn()">
           </div>
           <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="signinPassword" placeholder="••••••••" autocomplete="current-password">
+            <label class="form-label" for="signinPassword">Password</label>
+            <input type="password" class="form-input" id="signinPassword" name="password"
+              placeholder="••••••••" autocomplete="current-password"
+              onkeydown="if(event.key==='Enter') handleSignIn()">
           </div>
           <div class="form-forgot">
             <button onclick="showToast('Password reset link sent to your email!')">Forgot password?</button>
           </div>
 
-          <button class="form-submit" onclick="handleSignIn()">Sign In</button>
+          <button class="form-submit" id="signinBtn" onclick="handleSignIn()">Sign In</button>
 
           <div class="form-divider">or</div>
 
@@ -142,28 +153,29 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">First Name</label>
-              <input type="text" class="form-input" id="signupFirst" placeholder="Juan" autocomplete="given-name">
+              <label class="form-label" for="signupFirst">First Name</label>
+              <input type="text" class="form-input" id="signupFirst" name="first_name"
+                placeholder="Juan" autocomplete="given-name">
             </div>
             <div class="form-group">
-              <label class="form-label">Last Name</label>
-              <input type="text" class="form-input" id="signupLast" placeholder="Dela Cruz" autocomplete="family-name">
+              <label class="form-label" for="signupLast">Last Name</label>
+              <input type="text" class="form-input" id="signupLast" name="last_name"
+                placeholder="Dela Cruz" autocomplete="family-name">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input type="email" class="form-input" id="signupEmail" placeholder="your@email.com" autocomplete="email">
+            <label class="form-label" for="signupEmail">Email Address</label>
+            <input type="email" class="form-input" id="signupEmail" name="email"
+              placeholder="your@email.com" autocomplete="email">
           </div>
           <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="signupPassword" placeholder="Min. 8 characters" autocomplete="new-password">
+            <label class="form-label" for="signupPassword">Password</label>
+            <input type="password" class="form-input" id="signupPassword" name="password"
+              placeholder="Min. 6 characters" autocomplete="new-password"
+              onkeydown="if(event.key==='Enter') handleSignUp()">
           </div>
-          <div class="form-group">
-            <label class="form-label">Date of Birth</label>
-            <input type="date" class="form-input" id="signupDob">
-          </div>
-          
-          <button class="form-submit" onclick="handleSignUp()">Create Account — It's Free</button>
+
+          <button class="form-submit" id="signupBtn" onclick="handleSignUp()">Create Account — It's Free</button>
 
           <div class="form-note">
             Already have an account? <button onclick="switchAuthTab('signin')">Sign in</button>
@@ -181,119 +193,144 @@
     </div>
   </div>
 
+
   <script src="homepage.js"></script>
   <script>
-    // Handle hash for direct signup link
+    // Back-button lock
+    // Replace current history entry so back goes to wherever the user
+    // came from before login, not back to this page after success.
+    history.replaceState({ page: 'login' }, '', location.href);
+
+    window.addEventListener('pageshow', function (e) {
+      // bfcache restoration — if we somehow end up here after login, redirect
+      if (e.persisted) {
+        fetch('check_session.php')
+          .then(r => r.json())
+          .then(d => { if (d.logged_in) window.location.replace('homepage.php'); })
+          .catch(() => {});
+      }
+    });
+
+    /* ===== Tab switching ===== */
     if (window.location.hash === '#signup') {
       switchAuthTab('signup');
     }
 
     function switchAuthTab(tab) {
-      const signinForm = document.getElementById('signinForm');
-      const signupForm = document.getElementById('signupForm');
-      const signinBtn = document.getElementById('signinTabBtn');
-      const signupBtn = document.getElementById('signupTabBtn');
-
-      signinForm.classList.toggle('hidden', tab !== 'signin');
-      signupForm.classList.toggle('hidden', tab !== 'signup');
-      signinBtn.classList.toggle('active', tab === 'signin');
-      signupBtn.classList.toggle('active', tab === 'signup');
+      document.getElementById('signinForm').classList.toggle('hidden', tab !== 'signin');
+      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('signinTabBtn').classList.toggle('active', tab === 'signin');
+      document.getElementById('signupTabBtn').classList.toggle('active', tab === 'signup');
     }
 
     function showSuccess(title, msg) {
       document.getElementById('signinForm').classList.add('hidden');
       document.getElementById('signupForm').classList.add('hidden');
       document.querySelectorAll('.auth-tab').forEach(t => t.style.opacity = '0.3');
-
-      const success = document.getElementById('authSuccess');
       document.getElementById('successTitle').textContent = title;
-      document.getElementById('successMsg').textContent = msg;
-      success.classList.add('visible');
+      document.getElementById('successMsg').textContent   = msg;
+      document.getElementById('authSuccess').classList.add('visible');
     }
 
-async function handleSignIn() {
-    const email = document.getElementById('signinEmail').value.trim();
-    const password = document.getElementById('signinPassword').value;
+    /* ===== Sign In ===== */
+    async function handleSignIn() {
+      const email    = document.getElementById('signinEmail').value.trim();
+      const password = document.getElementById('signinPassword').value;
 
-    if (!email || !password) {
-        showToast('Please fill in all fields.');
-        return;
-    }
+      if (!email || !password) { showToast('Please fill in all fields.'); return; }
 
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
+      const btn = document.getElementById('signinBtn');
+      btn.textContent = 'Signing in…';
+      btn.disabled = true;
 
-    try {
-        const response = await fetch('login_process.php', {
-            method: 'POST',
-            body: formData
-        });
+      try {
+        const fd = new FormData();
+        fd.append('email', email);
+        fd.append('password', password);
 
-        const result = await response.json();
+        const res    = await fetch('login_process.php', { method: 'POST', body: fd });
+        const result = await res.json();
 
         if (result.status === 'success') {
-            
-            showSuccess('Welcome back! ☕', 'You\'re now signed in to NestledBrew. Redirecting to your rewards...');
-            
-            
-            setTimeout(() => {
-                window.location.href = 'rewards.php';
-            }, 2500);
+          // Show rewards points earned in a toast before redirecting
+          const pts = result.points ?? 0;
+          showToast(`☕ Welcome back, ${result.name}! You have ${pts} BrewPoints.`, 3000);
+
+          showSuccess(
+            `Welcome back, ${result.name}! ☕`,
+            `You're signed in. You currently have ${pts} BrewPoints. Redirecting…`
+          );
+
+          setTimeout(() => {
+            // Replace so back button skips this page entirely
+            window.location.replace('homepage.php');
+          }, 2500);
         } else {
-            showToast(result.message);
+          showToast(result.message);
+          btn.textContent = 'Sign In';
+          btn.disabled = false;
         }
-    } catch (error) {
-        console.error('Error:', error);
+      } catch (err) {
+        console.error(err);
         showToast('Connection error. Is XAMPP running?');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+      }
     }
-}
 
+    /* ===== Sign Up ===== */
     async function handleSignUp() {
-    const first = document.getElementById('signupFirst').value.trim();
-    const last = document.getElementById('signupLast').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
+      const first    = document.getElementById('signupFirst').value.trim();
+      const last     = document.getElementById('signupLast').value.trim();
+      const email    = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
 
-    if (!first || !last || !email || !password) {
-        showToast('Please fill in all fields.');
-        return;
-    }
+      if (!first || !last || !email || !password) { showToast('Please fill in all fields.'); return; }
+      if (password.length < 6) { showToast('Password must be at least 6 characters.'); return; }
 
-    const formData = new FormData();
-    formData.append('first_name', first);
-    formData.append('last_name', last);
-    formData.append('email', email);
-    formData.append('password', password);
+      const btn = document.getElementById('signupBtn');
+      btn.textContent = 'Creating account…';
+      btn.disabled = true;
 
-    try {
-        const response = await fetch('signup_process.php', {
-            method: 'POST',
-            body: formData
-        });
+      try {
+        const fd = new FormData();
+        fd.append('first_name', first);
+        fd.append('last_name',  last);
+        fd.append('email',      email);
+        fd.append('password',   password);
 
-        const result = await response.json();
+        const res    = await fetch('signup_process.php', { method: 'POST', body: fd });
+        const result = await res.json();
 
         if (result.status === 'success') {
-            
-            showSuccess(
-                `Welcome, ${first}! 🎉`, 
-                `Your NestledBrew account is ready. You've been enrolled in our Rewards programme — you start at Bean Starter tier with 0 points. Go earn some!`
-            );
-            
-  
-            setTimeout(() => {
-                window.location.href = 'rewards.php';
-            }, 3500);
-            
+          // Prompt about rewards on sign-up too
+          showToast('🎉 Account created! Start earning BrewPoints with your first order.', 4000);
+
+          showSuccess(
+            `Welcome, ${first}! 🎉`,
+            `Your NestledBrew account is ready. You've been enrolled in Rewards — start at Bean Starter with 0 points. Go earn some!`
+          );
+
+          setTimeout(() => {
+            window.location.replace('rewards.php');
+          }, 3500);
         } else {
-            showToast(result.message || 'Registration failed.');
+          showToast(result.message || 'Registration failed.');
+          btn.textContent = 'Create Account — It\'s Free';
+          btn.disabled = false;
         }
-    } catch (error) {
-        console.error('Error:', error);
+      } catch (err) {
+        console.error(err);
         showToast('Server connection error.');
+        btn.textContent = 'Create Account — It\'s Free';
+        btn.disabled = false;
+      }
     }
-}
+
+    function toggleMode() {
+      const isLight = document.body.classList.contains('light-mode');
+      applyMode(!isLight);
+    }
   </script>
 </body>
 </html>

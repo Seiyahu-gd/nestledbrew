@@ -1,7 +1,6 @@
-<?php session_start(); ?>
-include 'db_config.php'; 
-
-// Fetch unique categories
+<?php session_start();
+include 'db.php';
+ 
 $categories_query = "SELECT DISTINCT category FROM menu_items ORDER BY category ASC";
 $categories_result = $conn->query($categories_query);
 ?>
@@ -16,7 +15,6 @@ $categories_result = $conn->query($categories_query);
 </head>
 <body>
 
-    <?php session_start(); ?>
 <header id="mainHeader">
   <div class="nav-topstrip">
     <div class="nav-topstrip-contact">
@@ -43,16 +41,19 @@ $categories_result = $conn->query($categories_query);
     </a>
 
     <nav class="nav-links"> 
-      <a href="homepage.php" class="nav-link active">Home</a>
-      <a href="menu.php" class="nav-link">Menu</a>
+      <a href="homepage.php" class="nav-link">Home</a>
+      <a href="menu.php" class="nav-link active">Menu</a>
       <a href="about.php" class="nav-link">About Us</a>
       <a href="rewards.php" class="nav-link">Rewards</a>
     </nav>
 
     <div class="nav-actions">
+      <a href="cart.php" class="cart-nav-link">
+    🛒 <span class="cart-nav-label">Cart</span>
+      </a>
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
-          <a href="rewards.php" class="nav-profile-link">
+          <a href="profile.php" class="nav-profile-link">
             <div class="profile-circle">
               <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
             </div>
@@ -61,8 +62,8 @@ $categories_result = $conn->query($categories_query);
           <a href="logout.php" class="logout-btn">Logout</a>
         </div>
       <?php else: ?>
-        <a href="login.html" class="nav-link">Sign In</a>
-        <a href="login.html#signup" class="btn btn-primary">Join Now</a>
+        <a href="login.php" class="nav-link">Sign In</a>
+        <a href="login.php#signup" class="btn btn-primary">Join Now</a>
       <?php endif; ?>
     </div>
 
@@ -81,8 +82,10 @@ $categories_result = $conn->query($categories_query);
                     <h2 class="category-title"><?php echo $current_cat; ?></h2>
                     <div class="menu-grid">
                         <?php
-                        $items_query = "SELECT * FROM menu_items WHERE category = '$current_cat'";
-                        $items_result = $conn->query($items_query);
+                        $stmt = $conn->prepare("SELECT * FROM menu_items WHERE category = ?");
+                        $stmt->bind_param("s", $current_cat);
+                        $stmt->execute();
+                        $items_result = $stmt->get_result();
                         while($item = $items_result->fetch_assoc()): ?>
                             
                             <div class="menu-card">
@@ -92,7 +95,7 @@ $categories_result = $conn->query($categories_query);
                                 <div class="card-content">
                                     <h3><?php echo $item['name']; ?></h3>
                                     <p class="price">₱<?php echo number_format($item['price'], 2); ?></p>
-                                    <button class="add-btn" onclick="addToCart('<?php echo $item['name']; ?>')">+</button>
+                                    <button class="add-btn" onclick="addToCart('<?php echo htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8'); ?>')">+</button>
                                 </div>
                             </div>
                         <?php endwhile; ?>

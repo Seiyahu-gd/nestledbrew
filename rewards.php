@@ -50,9 +50,12 @@
     </nav>
 
     <div class="nav-actions">
+      <a href="cart.php" class="cart-nav-link">
+    🛒 <span class="cart-nav-label">Cart</span>
+      </a>
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
-          <a href="rewards.php" class="nav-profile-link">
+          <a href="profile.php" class="nav-profile-link">
             <div class="profile-circle">
               <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
             </div>
@@ -61,8 +64,8 @@
           <a href="logout.php" class="logout-btn">Logout</a>
         </div>
       <?php else: ?>
-        <a href="login.html" class="nav-link">Sign In</a>
-        <a href="login.html#signup" class="btn btn-primary">Join Now</a>
+        <a href="login.php" class="nav-link">Sign In</a>
+        <a href="login.php#signup" class="btn btn-primary">Join Now</a>
       <?php endif; ?>
     </div>
 

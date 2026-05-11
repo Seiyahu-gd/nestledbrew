@@ -11,3 +11,11 @@ CREATE TABLE users (
     tier VARCHAR(20) DEFAULT 'Bean Starter',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE menu_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    image_path VARCHAR(255)
+);

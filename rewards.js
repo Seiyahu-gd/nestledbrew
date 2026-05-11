@@ -1,15 +1,18 @@
 // Function to fetch and display the user's current points
 async function loadUserData() {
     try {
-        const response = await fetch('rewards_action.php?action=get_points');
+        const fd = new FormData();
+        fd.append('action', 'get_points');
+
+        const response = await fetch('rewards_action.php', { method: 'POST', body: fd });
         const data = await response.json();
 
-        if (data.points !== undefined) {
-            // Updates the large number in your .points-card
-            const pointsDisplay = document.querySelector('.points-value');
+        if (data && data.status === 'success' && data.points !== undefined) {
+            // Rewards page markup uses .rewards-card-pts-label for the number
+            const pointsDisplay = document.querySelector('.rewards-card-pts-label');
             if (pointsDisplay) pointsDisplay.textContent = data.points.toLocaleString();
-            
-            // Updates the Tier name (e.g., Bean Starter)
+
+            // If you add a tier badge later, this selector can be updated
             const tierDisplay = document.querySelector('.tier-badge');
             if (tierDisplay) tierDisplay.textContent = data.tier;
         }
@@ -17,6 +20,7 @@ async function loadUserData() {
         console.error('Error loading rewards:', error);
     }
 }
+
 
 // Update your claimReward function to deduct points in the DB
 async function claimReward(drinkName, cost) {

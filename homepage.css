@@ -7,28 +7,28 @@ html { scroll-behavior: smooth; }
 
 :root {
   /* Dark mode (default) */
-  --bg:           #1C1108;
-  --bg-secondary: #2B1A10;
-  --surface:      #3A2318;
-  --surface-2:    #4A2E20;
-  --accent:       #C98A4E;
-  --accent-2:     #8C5A3C;
-  --accent-light: #E0AA74;
-  --accent-glow:  rgba(201,138,78,0.2);
-  --text:         #F5EDE0;
-  --text-muted:   #B8967A;
-  --text-dim:     #7A5A42;
-  --border:       rgba(201,138,78,0.18);
-  --nav-bg:       rgba(28,17,8,0.94);
-  --card-bg:      rgba(58,35,24,0.7);
-  --shadow:       rgba(0,0,0,0.6);
-  --shadow-lg:    rgba(0,0,0,0.8);
+  --bg:           #2B1E14;
+  --bg-secondary: #3A2318;
+  --surface:      #4B3020;
+  --surface-2:    #5C3C28;
+  --accent:       #8B6B4F;
+  --accent-2:     #7A8B6F;   /* sage as secondary accent */
+  --accent-light: #A8866A;
+  --accent-glow:  rgba(139,107,79,0.2);
+  --text:         #F6F2EB;   /* Cream */
+  --text-muted:   #BFAE9A;   /* Warm Clay */
+  --text-dim:     #8B7A6A;
+  --border:       rgba(220,203,178,0.15);
+  --nav-bg:       rgba(43,30,20,0.94);
+  --card-bg:      rgba(75,48,32,0.7);
+  --shadow:       rgba(0,0,0,0.5);
+  --shadow-lg:    rgba(0,0,0,0.7);
 
-  --hero-bg:      #1C1108;
-  --about-bg:     #140C04;
-  --menu-bg:      #2B1A10;
-  --rewards-bg:   #1C1108;
-  --footer-bg:    #100904;
+  --hero-bg:      #2B1E14;
+  --about-bg:     #231810;
+  --menu-bg:      #3A2318;
+  --rewards-bg:   #2B1E14;
+  --footer-bg:    #1A0F08;
 
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;       
@@ -41,28 +41,28 @@ html { scroll-behavior: smooth; }
 }
 
 body.light-mode {
-  --bg:           #FBF6EF;
-  --bg-secondary: #F2E9DC;
-  --surface:      #E8D8C4;
-  --surface-2:    #DBC5A8;
-  --accent:       #7A4520;
-  --accent-2:     #5C3318;
-  --accent-light: #9B5E35;
-  --accent-glow:  rgba(122,69,32,0.12);
-  --text:         #1A0C04;
-  --text-muted:   #5C3A25;
-  --text-dim:     #9B7558;
-  --border:       rgba(122,69,32,0.18);
-  --nav-bg:       rgba(251,246,239,0.94);
-  --card-bg:      rgba(232,216,196,0.7);
-  --shadow:       rgba(30,14,8,0.12);
-  --shadow-lg:    rgba(30,14,8,0.2);
+  --bg:           #F6F2EB;   /* Cream */
+  --bg-secondary: #BFAE9A;   /* Warm Clay */
+  --surface:      #DCCBB2;   /* Oatmilk */
+  --surface-2:    #C8B898;
+  --accent:       #4B3A2E;   /* Espresso */
+  --accent-2:     #7A8B6F;   /* Sage */
+  --accent-light: #8B6B4F;   /* Roasted Nuts */
+  --accent-glow:  rgba(75,58,46,0.1);
+  --text:         #2B1A10;
+  --text-muted:   #5C4433;
+  --text-dim:     #8B7A6A;
+  --border:       rgba(75,58,46,0.15);
+  --nav-bg:       rgba(246,242,235,0.94);
+  --card-bg:      rgba(220,203,178,0.7);
+  --shadow:       rgba(30,14,8,0.1);
+  --shadow-lg:    rgba(30,14,8,0.18);
 
-  --hero-bg:      #FBF6EF;
-  --about-bg:     #F2E9DC;
-  --menu-bg:      #FBF6EF;
-  --rewards-bg:   #F2E9DC;
-  --footer-bg:    #1C1108;
+  --hero-bg:      #F6F2EB;
+  --about-bg:     #BFAE9A;
+  --menu-bg:      #F6F2EB;
+  --rewards-bg:   #DCCBB2;
+  --footer-bg:    #2B1A10;
 }
 
 body {
@@ -75,6 +75,30 @@ body {
   overflow-x: hidden;
 }
 
+.cart-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+.cart-nav-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.cart-nav-label {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; }
