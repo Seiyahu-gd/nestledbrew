@@ -1,0 +1,169 @@
+/* --- NestledBrew Menu Styles --- */
+
+.menu-page {
+    background: var(--bg);
+    min-height: 100vh;
+    padding-top: 120px; /* Space for the fixed header */
+}
+
+/* Hero Section */
+.menu-hero {
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 0 20px;
+}
+
+.menu-hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.menu-hero p {
+    font-family: 'Libre Baskerville', serif;
+    color: var(--accent-light);
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Main Container */
+.menu-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+}
+
+/* Category Sections */
+.menu-section {
+    margin-bottom: 80px;
+}
+
+.category-title {
+    font-family: 'Fraunces', serif;
+    font-size: 2.2rem;
+    color: var(--text);
+    text-align: center; /* Centered category names */
+    margin-bottom: 40px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background: var(--accent);
+}
+
+/* Grid Layout */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 35px;
+    justify-content: center;
+}
+
+/* Menu Card */
+.menu-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid rgba(201, 138, 78, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
+/* Image Container - THE FIX FOR CENTERING */
+.card-image {
+    width: 100%;
+    height: 240px; /* Fixed height for uniformity */
+    overflow: hidden;
+    background: var(--surface); /* Fallback color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Forces image to fill the square perfectly */
+    object-position: center; /* Centers the content of the photo */
+    transition: transform 0.6s ease;
+}
+
+.menu-card:hover .card-image img {
+    transform: scale(1.08);
+}
+
+/* Content inside the card */
+.card-content {
+    padding: 25px 20px;
+    position: relative;
+    flex-grow: 1;
+}
+
+.card-content h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-right: 40px; /* Prevents text from hitting the button */
+    line-height: 1.2;
+}
+
+.price {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1.15rem;
+}
+
+/* Add Button (+) */
+.add-btn {
+    position: absolute;
+    bottom: 25px;
+    right: 20px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.add-btn:hover {
+    background: var(--accent-light);
+    transform: rotate(90deg);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .menu-hero h1 {
+        font-size: 2.2rem;
+    }
+}
