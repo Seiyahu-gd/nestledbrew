@@ -112,7 +112,7 @@ function getCartItems($conn, $user_id) {
         FROM cart_items ci
         JOIN menu_items mi ON ci.menu_item_id = mi.id
         WHERE ci.user_id = ?
-        ORDER BY ci.added_at DESC
+        ORDER BY ci.id DESC
     ");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
