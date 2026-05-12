@@ -1,4 +1,5 @@
 <?php
+ob_start(); 
 $host = 'localhost';
 $dbname = 'nestledbrew_db';
 $username = 'root';

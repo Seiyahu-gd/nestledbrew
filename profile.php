@@ -20,6 +20,7 @@ if (isset($_SESSION['user_id'])) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="homepage.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
   <style>
     /* ===== PROFILE PAGE STYLES ===== */
 
@@ -696,7 +697,7 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Hidden file input -->
         <input type="file" id="avatarFileInput" accept="image/*"
-              style="display:none" onchange="uploadAvatar(this)">
+              style="display:none" onchange="openCropModal(this)">
         <div class="profile-avatar-badge" title="Change profile picture"
             onclick="document.getElementById('avatarFileInput').click()">✏️</div>
       </div>
@@ -1003,7 +1004,7 @@ if (isset($_SESSION['user_id'])) {
       <div>
         <div class="footer-col-title">Visit Us</div>
         <ul class="footer-links">
-          <li><a href="#">123 Brew Street</a></li>
+          <li><a href="#">LiveLoveLieSt.</a></li>
           <li><a href="#">Cebu City, PH</a></li>
           <li><a href="#">Mon–Fri: 7AM–8PM</a></li>
           <li><a href="#">Sat–Sun: 8AM–9PM</a></li>
@@ -1014,7 +1015,7 @@ if (isset($_SESSION['user_id'])) {
         <ul class="footer-links">
           <li><a href="#">Instagram</a></li>
           <li><a href="#">Facebook</a></li>
-          <li><a href="mailto:hello@nestledbrew.com">hello@nestledbrew.com</a></li>
+          <li><a href="mailto:hello@nestledbrew.com">nestledbrew@gmail.com</a></li>
           <li><a href="#">+63 917 123 4567</a></li>
         </ul>
       </div>
@@ -1025,69 +1026,102 @@ if (isset($_SESSION['user_id'])) {
     </div>
   </footer>
 
+    <!-- Crop Modal -->
+  <div id="cropModal" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+    <div style="
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:28px; width:420px; max-width:90vw;">
+      <div style="font-family:var(--font-display);font-size:1.1rem;font-style:italic;
+        color:var(--text);margin-bottom:16px;">Crop Profile Picture</div>
+      <div style="width:100%;height:320px;overflow:hidden;border-radius:var(--radius);
+        background:#111;margin-bottom:20px;">
+        <img id="cropImage" style="max-width:100%;display:block;">
+      </div>
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button class="btn" onclick="closeCropModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="cropAndUpload()">Save Photo</button>
+      </div>
+    </div>
+  </div>
+
 
   <script src="homepage.js"></script>
   <script>
     /* ===== PROFILE PAGE SCRIPT ===== */
 
-    // Avatar color palette (cycles on ✏️ click)
-    const avatarGradients = [
-      'linear-gradient(135deg, var(--surface-2), var(--accent))',
-      'linear-gradient(135deg, #2E4A3E, #7A8B6F)',
-      'linear-gradient(135deg, #3A2B4A, #8B6FAF)',
-      'linear-gradient(135deg, #4A3020, #C98A4E)',
-      'linear-gradient(135deg, #1E3040, #4A90D9)',
-    ];
-    let avatarColorIdx = 0;
-    async function uploadAvatar(input) {
-      const file = input.files[0];
-      if (!file) return;
+    let cropper = null;
 
-      if (file.size > 2 * 1024 * 1024) {
-        showToast('Image must be under 2MB.');
-        return;
-      }
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  if (cropper) { cropper.destroy(); cropper = null; }
+  document.getElementById('avatarFileInput').value = '';
+}
 
-      showToast('Uploading…');
+function openCropModal(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB.'); return; }
 
-      const fd = new FormData();
-      fd.append('profile_picture', file);
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const modal = document.getElementById('cropModal');
+    const img   = document.getElementById('cropImage');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    img.src = e.target.result;
+    modal.style.display = 'flex';
+    img.onload = () => {
+      cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 1,
+        movable: true,
+        zoomable: true,
+        scalable: false,
+        cropBoxResizable: true,
+        background: false,
+      });
+    };
+  };
+  reader.readAsDataURL(file);
+}
 
-      try {
-        const res    = await fetch('upload_profile_picture.php', { method: 'POST', body: fd });
-        const result = await res.json();
-
-        if (result.success) {
-          // Swap avatar to uploaded image instantly
-          const wrap   = document.querySelector('.profile-avatar-wrap');
-          const oldAvatar = document.getElementById('heroAvatar');
-          const img    = document.createElement('img');
-          img.src      = result.path + '?t=' + Date.now();
-          img.id       = 'heroAvatar';
-          img.alt      = 'Profile';
-          img.style.cssText = 'width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--border);box-shadow:0 12px 40px var(--shadow);';
-          oldAvatar.replaceWith(img);
-
-          // Also update navbar circle with the new photo
-          const navCircle = document.querySelector('.profile-circle');
-          if (navCircle) {
-            navCircle.style.padding = '0';
-            navCircle.style.overflow = 'hidden';
-            navCircle.innerHTML = `<img src="${result.path}?t=${Date.now()}" 
-              style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Profile">`;
-          }
-
-          showToast('✓ Profile picture updated!');
-        } else {
-          showToast(result.message || 'Upload failed.');
+async function cropAndUpload() {
+  if (!cropper) return;
+  showToast('Uploading…');
+  const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+  canvas.toBlob(async (blob) => {
+    const fd = new FormData();
+    fd.append('profile_picture', blob, 'avatar.png');
+    try {
+      const res    = await fetch('upload_profile_picture.php', { method: 'POST', body: fd });
+      const result = await res.json();
+      if (result.success) {
+        const oldAvatar = document.getElementById('heroAvatar');
+        const img       = document.createElement('img');
+        img.src         = result.path + '?t=' + Date.now();
+        img.id          = 'heroAvatar';
+        img.alt         = 'Profile';
+        img.style.cssText = 'width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--border);box-shadow:0 12px 40px var(--shadow);';
+        oldAvatar.replaceWith(img);
+        const navCircle = document.querySelector('.profile-circle');
+        if (navCircle) {
+          navCircle.style.padding  = '0';
+          navCircle.style.overflow = 'hidden';
+          navCircle.innerHTML = `<img src="${result.path}?t=${Date.now()}"
+            style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Profile">`;
         }
-      } catch (e) {
-        console.error(e);
-        showToast('Connection error during upload.');
+        showToast('✓ Profile picture updated!');
+        closeCropModal();
+      } else {
+        showToast(result.message || 'Upload failed.');
       }
-
-      input.value = ''; // reset so same file can be re-selected
+    } catch (e) {
+      console.error(e);
+      showToast('Connection error during upload.');
     }
+  }, 'image/png');
+}
 
     // Tier logic
     function getTier(pts) {
@@ -1168,8 +1202,9 @@ if (isset($_SESSION['user_id'])) {
           showToast('✓ Profile updated successfully!');
 
           // Sync sidebar name
-          document.getElementById('sidebarName').textContent = name.toUpperCase();
-          document.getElementById('heroInitial').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('sidebarName').textContent = name.toUpperCase();
+        const heroInitial = document.getElementById('heroInitial');
+        if (heroInitial) heroInitial.textContent = name.charAt(0).toUpperCase();
         } else {
           showToast(result?.message || 'Could not save changes.');
         }
@@ -1277,5 +1312,10 @@ if (isset($_SESSION['user_id'])) {
       applyMode(!isLight);
     }
   </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+
+
 </body>
 </html>

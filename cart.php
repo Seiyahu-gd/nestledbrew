@@ -1,5 +1,14 @@
 <?php session_start();
 include 'db.php';
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $_SESSION['user_picture'] = $row['profile_picture'] ?? null;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

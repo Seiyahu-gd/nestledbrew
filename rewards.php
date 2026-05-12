@@ -1,5 +1,14 @@
 <?php
 session_start();
+include 'db.php';
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $_SESSION['user_picture'] = $row['profile_picture'] ?? null;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -212,7 +221,7 @@ session_start();
       <div>
         <div class="footer-col-title">Visit Us</div>
         <ul class="footer-links">
-          <li><a href="#">123 Brew Street</a></li>
+          <li><a href="#">LiveLoveLieSt.</a></li>
           <li><a href="#">Cebu City, PH</a></li>
           <li><a href="#">Mon–Fri: 7AM–8PM</a></li>
           <li><a href="#">Sat–Sun: 8AM–9PM</a></li>
@@ -223,7 +232,7 @@ session_start();
         <ul class="footer-links">
           <li><a href="#">Instagram</a></li>
           <li><a href="#">Facebook</a></li>
-          <li><a href="mailto:hello@nestledbrew.com">hello@nestledbrew.com</a></li>
+          <li><a href="mailto:hello@nestledbrew.com">nestledbrew@gmail.com</a></li>
           <li><a href="#">+63 917 123 4567</a></li>
         </ul>
       </div>

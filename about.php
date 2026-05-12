@@ -1,4 +1,15 @@
-  <?php session_start(); ?>
+  <?php session_start(); 
+  include 'db.php';
+  
+  if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $_SESSION['user_picture'] = $row['profile_picture'] ?? null;
+}
+
+  ?>
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -59,9 +70,15 @@
         <?php if(isset($_SESSION['user_id'])): ?>
           <div class="user-profile-group">
             <a href="profile.php" class="nav-profile-link">
-              <div class="profile-circle">
-                <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
-              </div>
+                <div class="profile-circle" style="<?php echo !empty($_SESSION['user_picture']) ? 'padding:0;overflow:hidden;' : ''; ?>">
+                  <?php if (!empty($_SESSION['user_picture'])): ?>
+                    <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+                        alt="Profile"
+                        style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  <?php else: ?>
+                    <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+                  <?php endif; ?>
+                </div>
               <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
             </a>
             <a href="logout.php" class="logout-btn">Logout</a>
@@ -114,7 +131,7 @@
       <div class="team-grid">
         <div class="team-card reveal">
           <div class="team-img-wrapper">
-          <img src="picutres/johnee.webp" alt="Johnne Reinz Jarito" class="team-photo"> </div>
+          <img src="picutres/jhonne.jpg" alt="Jhonne Reinz Jarito" class="team-photo"> </div>
           <div class="team-name">Jhonne Reinz Jarito</div>
           <div class="team-role">Barista</div>
           <p class="team-bio">A dedicated latte artist who spent three months perfecting the "Cebuano Sun" design.</p>
@@ -122,7 +139,7 @@
 
         <div class="team-card reveal reveal-delay-1">
           <div class="team-img-wrapper">
-          <img src="picutres/lyan.webp" alt="Lyan Cryster Cuesta" class="team-photo"> </div>
+          <img src="picutres/lyan.webp" alt="L" class="team-photo"> </div>
           <div class="team-name">Lyan Cryster Cuesta</div>
           <div class="team-role">Barista</div>
           <p class="team-bio">A certified bean enthusiast who keeps a personal journal tracking the flavor profiles of every coffee origin he has ever tasted.</p>

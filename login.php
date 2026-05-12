@@ -120,8 +120,13 @@ if (isset($_SESSION['user_id'])) {
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="signinEmail">Email Address</label>
-            <input type="email" class="form-input" id="signinEmail" name="email"
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <label class="form-label" style="margin-bottom:0" for="signinIdentifier">Email or First Name</label>
+              <button type="button" onclick="toggleLoginType()"
+                style="font-family:var(--font-body);font-size:0.75rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;"
+                id="loginTypeToggle">Use first name instead</button>
+            </div>
+            <input type="text" class="form-input" id="signinIdentifier" name="identifier"
               placeholder="your@email.com" autocomplete="email"
               onkeydown="if(event.key==='Enter') handleSignIn()">
           </div>
@@ -234,7 +239,8 @@ if (isset($_SESSION['user_id'])) {
 
     /* ===== Sign In ===== */
     async function handleSignIn() {
-      const email    = document.getElementById('signinEmail').value.trim();
+      const identifier = document.getElementById('signinIdentifier').value.trim();
+      const email      = identifier; // sent as-is, server handles both
       const password = document.getElementById('signinPassword').value;
 
       if (!email || !password) { showToast('Please fill in all fields.'); return; }
@@ -245,7 +251,7 @@ if (isset($_SESSION['user_id'])) {
 
       try {
         const fd = new FormData();
-        fd.append('email', email);
+        fd.append('identifier', identifier);
         fd.append('password', password);
 
         const res    = await fetch('login_process.php', { method: 'POST', body: fd });
@@ -276,6 +282,24 @@ if (isset($_SESSION['user_id'])) {
         btn.textContent = 'Sign In';
         btn.disabled = false;
       }
+
+      let loginByName = false;
+        function toggleLoginType() {
+          loginByName = !loginByName;
+          const input  = document.getElementById('signinIdentifier');
+          const toggle = document.getElementById('loginTypeToggle');
+          if (loginByName) {
+            input.type        = 'text';
+            input.placeholder = 'Your first name';
+            input.autocomplete = 'given-name';
+            toggle.textContent = 'Use email instead';
+          } else {
+            input.type        = 'text';
+            input.placeholder = 'your@email.com';
+            input.autocomplete = 'email';
+            toggle.textContent = 'Use first name instead';
+          }
+        }
     }
 
     /* ===== Sign Up ===== */

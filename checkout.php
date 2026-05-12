@@ -4,6 +4,14 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $_SESSION['user_picture'] = $row['profile_picture'] ?? null;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -656,8 +664,14 @@ if (!isset($_SESSION['user_id'])) {
         <?php if(isset($_SESSION['user_id'])): ?>
           <div class="user-profile-group">
             <a href="profile.php" class="nav-profile-link">
-              <div class="profile-circle">
-                <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+              <div class="profile-circle" style="<?php echo !empty($_SESSION['user_picture']) ? 'padding:0;overflow:hidden;' : ''; ?>">
+                <?php if (!empty($_SESSION['user_picture'])): ?>
+                  <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+                      alt="Profile"
+                      style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <?php else: ?>
+                  <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+                <?php endif; ?>
               </div>
               <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
             </a>
