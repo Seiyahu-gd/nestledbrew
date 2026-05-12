@@ -1,4 +1,29 @@
-<?php session_start(); ?>
+<?php
+session_start();
+include 'db.php';
+
+// Fetch 6 featured items per tab from the real DB
+// Map homepage tab names to DB category names
+$tab_map = [
+  'espresso'  => 'Espresso Drinks',
+  'specialty' => 'Special Brews',
+  'cold'      => 'Cold Drinks',
+  'frappes'   => 'Frappes',
+  'refreshers'=> 'Refreshers',
+  'food'      => 'Savory Bites',
+];
+
+// Pre-fetch all preview items grouped by tab key
+$menu_preview = [];
+foreach ($tab_map as $tab_key => $db_category) {
+  $stmt = $conn->prepare("SELECT id, name, price, image_path, category FROM menu_items WHERE category = ? LIMIT 6");
+  $stmt->bind_param("s", $db_category);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $menu_preview[$tab_key] = $result->fetch_all(MYSQLI_ASSOC);
+  $stmt->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,64 +49,78 @@
   <div class="toast" id="globalToast"></div>
 
   <!-- ===== HEADER / NAVBAR ===== -->
-<header id="mainHeader">
-  <div class="nav-topstrip">
-    <div class="nav-topstrip-contact">
-      <span>📍 LiveLoveLieSt., Cebu City</span>
-      <span>🕐 Mon–Fri: 7AM – 8PM &nbsp;·&nbsp; Sat–Sun: 8AM – 9PM</span>
-      <span>📞 +63 917 123 4567</span>
-    </div>
-    <div class="nav-topstrip-actions">
-      <a href="mailto:hello@nestledbrew.com">nestledbrew@gmail.com</a>
-      <span style="opacity:0.3">|</span>
-      <button onclick="toggleMode()" id="modeBtn">☀ Light Mode</button>
-    </div>
-  </div>
-
-  <div class="nav-main">
-    <a href="homepage.php" class="brand-link">
-      <div class="logo-mark">
-        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5"/>
-          <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Fraunces, serif" font-size="16" font-style="italic" fill="currentColor">N</text>
-        </svg>
+  <header id="mainHeader">
+    <div class="nav-topstrip">
+      <div class="nav-topstrip-contact">
+        <span>📍 LiveLoveLieSt., Cebu City</span>
+        <span>🕐 Mon–Fri: 7AM – 8PM &nbsp;·&nbsp; Sat–Sun: 8AM – 9PM</span>
+        <span>📞 +63 917 123 4567</span>
       </div>
-      <span class="brand-text">NestledBrew</span>
-    </a>
+      <div class="nav-topstrip-actions">
+        <a href="mailto:hello@nestledbrew.com">nestledbrew@gmail.com</a>
+        <span style="opacity:0.3">|</span>
+        <button onclick="toggleMode()" id="modeBtn">☀ Light Mode</button>
+      </div>
+    </div>
 
-    <nav class="nav-links"> 
-      <a href="homepage.php" class="nav-link active">Home</a>
-      <a href="menu.php" class="nav-link">Menu</a>
-      <a href="about.php" class="nav-link">About Us</a>
-      <a href="rewards.php" class="nav-link">Rewards</a>
-    </nav>
-
-    <div class="nav-actions">
-      <a href="cart.php" class="cart-nav-link">
-    🛒 <span class="cart-nav-label">Cart</span>
+    <div class="nav-main">
+      <a href="homepage.php" class="brand-link">
+        <div class="logo-mark">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5"/>
+            <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Fraunces, serif" font-size="16" font-style="italic" fill="currentColor">N</text>
+          </svg>
+        </div>
+        <span class="brand-text">NestledBrew</span>
       </a>
 
-      <?php if(isset($_SESSION['user_id'])): ?>
-        <div class="user-profile-group">
-          <a href="profile.php" class="nav-profile-link">
-            <div class="profile-circle">
-              <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
-            </div>
-            <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-          </a>
-          <a href="logout.php" class="logout-btn">Logout</a>
-        </div>
-      <?php else: ?>
-        <a href="login.php" class="nav-link">Sign In</a>
-        <a href="login.php#signup" class="btn btn-primary">Join Now</a>
-      <?php endif; ?>
+      <nav class="nav-links">
+        <a href="homepage.php" class="nav-link active">Home</a>
+        <a href="menu.php" class="nav-link">Menu</a>
+        <a href="about.php" class="nav-link">About Us</a>
+        <a href="rewards.php" class="nav-link">Rewards</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="cart.php" class="cart-nav-link">
+          🛒 <span class="cart-nav-label">Cart</span>
+        </a>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <div class="user-profile-group">
+            <a href="profile.php" class="nav-profile-link">
+              <div class="profile-circle">
+                <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+              </div>
+              <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+            </a>
+            <a href="logout.php" class="logout-btn">Logout</a>
+          </div>
+        <?php else: ?>
+          <a href="login.php" class="nav-link">Sign In</a>
+          <a href="login.php#signup" class="btn btn-primary">Join Now</a>
+        <?php endif; ?>
+      </div>
+
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
 
-    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="homepage.php" class="mobile-link">Home</a>
+      <a href="menu.php" class="mobile-link">Menu</a>
+      <a href="about.php" class="mobile-link">About Us</a>
+      <a href="rewards.php" class="mobile-link">Rewards</a>
+      <div class="mobile-actions">
+        <a href="cart.php" class="btn">🛒 Cart</a>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <a href="logout.php" class="btn">Logout</a>
+        <?php else: ?>
+          <a href="login.php#signup" class="btn btn-primary">Join Now</a>
+        <?php endif; ?>
+      </div>
+    </div>
+  </header>
 
 
   <!-- ===== HERO SECTION ===== -->
@@ -90,7 +129,6 @@
     <div class="hero-grain"></div>
     <div class="hero-inner">
 
-      <!-- LEFT: Logo / Visual -->
       <div class="hero-visual animate-fadeLeft">
         <div class="hero-logo-container">
           <div class="hero-logo-ring">
@@ -116,7 +154,6 @@
         </div>
       </div>
 
-      <!-- RIGHT: Content -->
       <div class="hero-content">
         <p class="hero-eyebrow animate-fadeUp" style="--d:0.2s">Est. 2019 · Cebu City</p>
         <h1 class="hero-title animate-fadeUp" style="--d:0.4s">
@@ -191,12 +228,54 @@
     </div>
 
     <div class="menu-tabs reveal">
-      <button class="tab-btn active" data-tab="espresso" onclick="switchMenuTab('espresso', this)">Espresso</button>
-      <button class="tab-btn" data-tab="specialty" onclick="switchMenuTab('specialty', this)">Specialty</button>
-      <button class="tab-btn" data-tab="food" onclick="switchMenuTab('food', this)">Food</button>
+      <button class="tab-btn active" data-tab="espresso"   onclick="switchMenuTab('espresso', this)">Espresso</button>
+      <button class="tab-btn"        data-tab="specialty"  onclick="switchMenuTab('specialty', this)">Special Brews</button>
+      <button class="tab-btn"        data-tab="cold"       onclick="switchMenuTab('cold', this)">Cold Drinks</button>
+      <button class="tab-btn"        data-tab="frappes"    onclick="switchMenuTab('frappes', this)">Frappes</button>
+      <button class="tab-btn"        data-tab="refreshers" onclick="switchMenuTab('refreshers', this)">Refreshers</button>
+      <button class="tab-btn"        data-tab="food"       onclick="switchMenuTab('food', this)">Savory Bites</button>
     </div>
 
-    <div class="menu-grid" id="menuGrid"></div>
+    <!-- PHP renders all tab panels; JS just shows/hides them -->
+    <div class="menu-panels" id="menuPanels">
+      <?php foreach ($menu_preview as $tab_key => $items): ?>
+        <div class="menu-panel <?php echo $tab_key === 'espresso' ? 'active' : ''; ?>" data-panel="<?php echo $tab_key; ?>">
+          <?php if (empty($items)): ?>
+            <p class="menu-empty">No items found. Check back soon!</p>
+          <?php else: ?>
+            <div class="menu-grid" id="menuGrid-<?php echo $tab_key; ?>">
+              <?php foreach ($items as $i => $item): ?>
+                <div class="menu-card" style="animation-delay:<?php echo $i * 0.06; ?>s">
+                  <div class="menu-card-img">
+                    <img
+                      src="<?php echo htmlspecialchars($item['image_path']); ?>"
+                      alt="<?php echo htmlspecialchars($item['name']); ?>"
+                      loading="lazy"
+                      onerror="this.style.display='none';this.parentElement.classList.add('img-fallback')"
+                    >
+                  </div>
+                  <div class="menu-card-body">
+                    <div class="menu-card-name"><?php echo htmlspecialchars($item['name']); ?></div>
+                    <div class="menu-card-category"><?php echo htmlspecialchars($item['category']); ?></div>
+                    <div class="menu-card-footer">
+                      <div class="menu-card-price">₱<?php echo number_format($item['price'], 2); ?></div>
+                        <form method="POST" action="cart-handler.php" style="margin:0">
+                          <input type="hidden" name="action" value="add">
+                          <input type="hidden" name="menu_item_id" value="<?php echo (int)$item['id']; ?>">
+                          <button type="submit" class="menu-card-add-btn"
+                            aria-label="Add <?php echo htmlspecialchars($item['name']); ?> to cart">
+                            +
+                          </button>
+                        </form>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    </div>
 
     <div class="menu-cta-row reveal">
       <a href="menu.php" class="btn btn-primary btn-lg">View Full Menu</a>
@@ -206,29 +285,26 @@
 
   <!-- ===== ABOUT PREVIEW SECTION ===== -->
   <section id="about-preview">
-
-      <div class="about-content">
-        <p class="section-eyebrow reveal">Our Story</p>
-        <h2 class="section-title reveal reveal-delay-1">
-          Crafted with Passion,<br><em>Served with Love</em>
-        </h2>
-        <p class="section-body reveal reveal-delay-2">
-          Since 2019, NestledBrew has been a sanctuary for coffee lovers seeking exceptional 
-          quality and genuine hospitality. We source our beans from sustainable farms across 14 countries, 
-          roasting them in-house to bring out their unique character.
-        </p>
-        <p class="section-body reveal reveal-delay-3">
-          Our skilled baristas transform premium beans into artful beverages that awaken the 
-          senses — paired perfectly with a good book and even better company.
-        </p>
-
-        <div class="reveal reveal-delay-4" style="margin-top:36px">
-        </div>
-      </div>
+    <div class="about-content">
+      <p class="section-eyebrow reveal">Our Story</p>
+      <h2 class="section-title reveal reveal-delay-1">
+        Crafted with Passion,<br><em>Served with Love</em>
+      </h2>
+      <p class="section-body reveal reveal-delay-2">
+        Since 2019, NestledBrew has been a sanctuary for coffee lovers seeking exceptional
+        quality and genuine hospitality. We source our beans from sustainable farms across 14 countries,
+        roasting them in-house to bring out their unique character.
+      </p>
+      <p class="section-body reveal reveal-delay-3">
+        Our skilled baristas transform premium beans into artful beverages that awaken the
+        senses — paired perfectly with a good book and even better company.
+      </p>
+      <div class="reveal reveal-delay-4" style="margin-top:36px"></div>
     </div>
   </section>
 
-  
+
+  <!-- ===== REWARDS PREVIEW SECTION ===== -->
   <section id="rewards-preview">
     <div class="rewards-inner">
       <div class="rewards-content">
@@ -266,18 +342,27 @@
           </div>
         </div>
         <div style="margin-top:32px" class="reveal reveal-delay-4">
-          <a href="login.php#signup" class="btn btn-primary btn-lg">Join Rewards — It's Free</a>
-          <a href="rewards.php" class="btn btn-lg" style="margin-left:12px">Learn More</a>
+          <a href="<?php echo isset($_SESSION['user_id']) ? 'rewards.php' : 'login.php#signup'; ?>" 
+            class="btn btn-primary btn-lg">
+            <?php echo isset($_SESSION['user_id']) ? 'Go to Rewards' : 'Join Rewards — It\'s Free'; ?>
+          </a>
+        <?php if (!isset($_SESSION['user_id'])): ?>
+        <a href="rewards.php" class="btn btn-lg" style="margin-left:12px">Learn More</a>
+        <?php endif; ?>
         </div>
       </div>
 
       <div class="rewards-visual reveal reveal-delay-2">
-        <div class="rewards-card">
+        <a href="rewards.php" class="rewards-card" style="text-decoration:none;cursor:pointer;">
           <div class="rewards-card-shimmer"></div>
           <div class="rewards-card-brand">NestledBrew</div>
-          <div class="points-number rewards-card-pts-label"> <?php echo isset($_SESSION['user_points']) ? $_SESSION['user_points'] : '0'; ?> </div>
+          <div class="rewards-card-points">
+            <?php echo isset($_SESSION['user_points']) ? (int)$_SESSION['user_points'] : '0'; ?>
+          </div>
           <div class="rewards-card-pts-label">BrewPoints</div>
-          <span class="user-name-text rewards-card-name "><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></span>
+          <div class="rewards-card-name">
+            <?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?>
+          </div>
         </div>
       </div>
     </div>
@@ -305,31 +390,29 @@
         </div>
         <div class="testimonial-card">
           <div class="testimonial-stars">★★★★★</div>
-          <p class="testimonial-text">"I bring all my clients here for meetings. The cold brew is unmatched, and the staff genuinely care about every single cup they make."</p>
+          <p class="testimonial-text">"I AM THEIR TEACHER IN WEBDEV. IM SO PROUD OF THEM! heart heart!"</p>
           <div class="testimonial-author">
-            <div class="testimonial-avatar">R</div>
+            <div class="testimonial-avatar">MR</div>
             <div>
-              <div class="testimonial-name">Rafael T.</div>
-              <div class="testimonial-role">Local Business Owner</div>
+              <div class="testimonial-name">Mary Rose L.</div>
+              <div class="testimonial-role">USC Instructor</div>
             </div>
           </div>
         </div>
         <div class="testimonial-card">
           <div class="testimonial-stars">★★★★★</div>
-          <p class="testimonial-text">"NestledBrew feels like a warm hug. The seasonal specials are always something new and exciting. My loyalty card is basically full every month!"</p>
+          <p class="testimonial-text">"I Love THEM SO MUCH!"</p>
           <div class="testimonial-author">
             <div class="testimonial-avatar">S</div>
             <div>
-              <div class="testimonial-name">Sofia L.</div>
+              <div class="testimonial-name">Samuel D.</div>
               <div class="testimonial-role">Freelance Writer</div>
             </div>
           </div>
         </div>
         <div class="testimonial-card">
           <div class="testimonial-stars">★★★★★</div>
-          <p class="testimonial-text">"The pour-over selection here rivals anything I'
-            ve had in Manila. The baristas really know their craft — they'll tell you everything
-             about the beans."</p>
+          <p class="testimonial-text">"The pour-over selection here rivals anything I've had in Manila. The baristas really know their craft — they'll tell you everything about the beans."</p>
           <div class="testimonial-author">
             <div class="testimonial-avatar">K</div>
             <div>
@@ -353,7 +436,7 @@
       <div class="footer-brand-col">
         <div class="footer-brand-name">NestledBrew</div>
         <p class="footer-brand-desc">
-          A sanctuary for coffee lovers and book enthusiasts in the heart of Cebu City. 
+          A sanctuary for coffee lovers and book enthusiasts in the heart of Cebu City.
           Sourcing ethically, brewing passionately since 2019.
         </p>
         <div class="footer-socials">
@@ -377,7 +460,7 @@
       <div>
         <div class="footer-col-title">Visit Us</div>
         <ul class="footer-links">
-          <li><a href="#">123 Brew Street</a></li>
+          <li><a href="#">LiveLoveLieSt., Cebu City</a></li>
           <li><a href="#">Cebu City, PH</a></li>
           <li><a href="#">Mon–Fri: 7AM–8PM</a></li>
           <li><a href="#">Sat–Sun: 8AM–9PM</a></li>
@@ -399,8 +482,7 @@
     </div>
   </footer>
 
-
-  <!-- Leaflet.js for 3D-style Map -->
+  <!-- Leaflet.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="homepage.js"></script>

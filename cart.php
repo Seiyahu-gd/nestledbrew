@@ -46,7 +46,15 @@ include 'db.php';
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
           <a href="rewards.php" class="nav-profile-link">
-            <div class="profile-circle"><?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?></div>
+            <div class="profile-circle" style="<?php echo !empty($_SESSION['user_picture']) ? 'padding:0;overflow:hidden;' : ''; ?>">
+              <?php if (!empty($_SESSION['user_picture'])): ?>
+                <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+                    alt="Profile"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <?php else: ?>
+                <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+              <?php endif; ?>
+            </div>
             <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
           </a>
           <a href="logout.php" class="logout-btn">Logout</a>

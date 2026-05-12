@@ -1,4 +1,15 @@
-<?php session_start(); ?>
+<?php
+session_start();
+include 'db.php';
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $_SESSION['user_picture'] = $row['profile_picture'] ?? null;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -623,8 +634,14 @@
         <?php if(isset($_SESSION['user_id'])): ?>
           <div class="user-profile-group">
             <a href="profile.php" class="nav-profile-link">
-              <div class="profile-circle">
-                <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+              <div class="profile-circle" style="<?php echo !empty($_SESSION['user_picture']) ? 'padding:0;overflow:hidden;' : ''; ?>">
+                <?php if (!empty($_SESSION['user_picture'])): ?>
+                  <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+                      alt="Profile"
+                      style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <?php else: ?>
+                  <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+                <?php endif; ?>
               </div>
               <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
             </a>
@@ -665,12 +682,23 @@
 
       <!-- Avatar -->
       <div class="profile-avatar-wrap">
-        <div class="profile-avatar" id="heroAvatar">
-          <span class="big-initial" id="heroInitial">
-            <?php echo isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'G'; ?>
-          </span>
-        </div>
-        <div class="profile-avatar-badge" title="Change avatar color" onclick="cycleAvatarColor()">✏️</div>
+        <?php if (!empty($_SESSION['user_picture'])): ?>
+          <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+              alt="Profile" id="heroAvatar"
+              style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--border);box-shadow:0 12px 40px var(--shadow);">
+        <?php else: ?>
+          <div class="profile-avatar" id="heroAvatar">
+            <span class="big-initial" id="heroInitial">
+              <?php echo isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'G'; ?>
+            </span>
+          </div>
+        <?php endif; ?>
+
+        <!-- Hidden file input -->
+        <input type="file" id="avatarFileInput" accept="image/*"
+              style="display:none" onchange="uploadAvatar(this)">
+        <div class="profile-avatar-badge" title="Change profile picture"
+            onclick="document.getElementById('avatarFileInput').click()">✏️</div>
       </div>
 
       <!-- Meta -->
@@ -1011,9 +1039,54 @@
       'linear-gradient(135deg, #1E3040, #4A90D9)',
     ];
     let avatarColorIdx = 0;
-    function cycleAvatarColor() {
-      avatarColorIdx = (avatarColorIdx + 1) % avatarGradients.length;
-      document.getElementById('heroAvatar').style.background = avatarGradients[avatarColorIdx];
+    async function uploadAvatar(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image must be under 2MB.');
+        return;
+      }
+
+      showToast('Uploading…');
+
+      const fd = new FormData();
+      fd.append('profile_picture', file);
+
+      try {
+        const res    = await fetch('upload_profile_picture.php', { method: 'POST', body: fd });
+        const result = await res.json();
+
+        if (result.success) {
+          // Swap avatar to uploaded image instantly
+          const wrap   = document.querySelector('.profile-avatar-wrap');
+          const oldAvatar = document.getElementById('heroAvatar');
+          const img    = document.createElement('img');
+          img.src      = result.path + '?t=' + Date.now();
+          img.id       = 'heroAvatar';
+          img.alt      = 'Profile';
+          img.style.cssText = 'width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--border);box-shadow:0 12px 40px var(--shadow);';
+          oldAvatar.replaceWith(img);
+
+          // Also update navbar circle with the new photo
+          const navCircle = document.querySelector('.profile-circle');
+          if (navCircle) {
+            navCircle.style.padding = '0';
+            navCircle.style.overflow = 'hidden';
+            navCircle.innerHTML = `<img src="${result.path}?t=${Date.now()}" 
+              style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Profile">`;
+          }
+
+          showToast('✓ Profile picture updated!');
+        } else {
+          showToast(result.message || 'Upload failed.');
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Connection error during upload.');
+      }
+
+      input.value = ''; // reset so same file can be re-selected
     }
 
     // Tier logic

@@ -1,4 +1,6 @@
-<?php session_start(); ?>
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +18,8 @@
   <div class="page-loader" id="pageLoader">
     <div class="loader-inner"><div class="loader-logo">N</div></div>
   </div>
+
+  <div class="toast" id="globalToast"></div>
 
 <header id="mainHeader">
   <div class="nav-topstrip">
@@ -42,7 +46,7 @@
       <span class="brand-text">NestledBrew</span>
     </a>
 
-    <nav class="nav-links"> 
+    <nav class="nav-links">
       <a href="homepage.php" class="nav-link">Home</a>
       <a href="menu.php" class="nav-link">Menu</a>
       <a href="about.php" class="nav-link">About Us</a>
@@ -51,14 +55,20 @@
 
     <div class="nav-actions">
       <a href="cart.php" class="cart-nav-link">
-    🛒 <span class="cart-nav-label">Cart</span>
+        🛒 <span class="cart-nav-label">Cart</span>
       </a>
       <?php if(isset($_SESSION['user_id'])): ?>
         <div class="user-profile-group">
           <a href="profile.php" class="nav-profile-link">
-            <div class="profile-circle">
-              <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
-            </div>
+              <div class="profile-circle" style="<?php echo !empty($_SESSION['user_picture']) ? 'padding:0;overflow:hidden;' : ''; ?>">
+                <?php if (!empty($_SESSION['user_picture'])): ?>
+                  <img src="<?php echo htmlspecialchars($_SESSION['user_picture']); ?>"
+                      alt="Profile"
+                      style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <?php else: ?>
+                  <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>
+                <?php endif; ?>
+              </div>
             <span class="user-name-text"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
           </a>
           <a href="logout.php" class="logout-btn">Logout</a>
@@ -75,15 +85,31 @@
   </div>
 </header>
 
+<main>
+
+<?php if (!isset($_SESSION['user_id'])): ?>
+  <!-- Not logged in — gate -->
+  <div style="text-align:center;padding:160px 40px 80px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <div style="font-size:3rem;">✦</div>
+    <h2 style="font-family:var(--font-display);font-size:1.8rem;font-style:italic;color:var(--text);">Sign in to view your Rewards</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:8px;">Earn BrewPoints with every order and unlock exclusive perks.</p>
+    <div style="display:flex;gap:12px;">
+      <a href="login.php" class="btn btn-primary btn-lg">Sign In</a>
+      <a href="login.php#signup" class="btn btn-lg">Create Account</a>
+    </div>
+  </div>
+
+<?php else: ?>
+
   <main class="dashboard-container">
     <div class="main-content">
       <div class="points-card animate-fadeUp">
         <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Your BrewPoints</p>
         <div class="points-display">
-        <div class="points-number rewards-card-pts-label">
-        <?php echo isset($_SESSION['user_points']) ? $_SESSION['user_points'] : '0'; ?>
-        </div>
-        <p>Bean Starter Tier</p>
+          <div class="points-number rewards-card-pts-label">
+            <?php echo isset($_SESSION['user_points']) ? $_SESSION['user_points'] : '0'; ?>
+          </div>
+          <p>Bean Starter Tier</p>
         </div>
       </div>
 
@@ -100,7 +126,7 @@
         <div class="card-panel reveal">
           <h3>Tip of the Day!</h3>
           <div style="display: grid; gap: 10px; margin-top: 16px;">
-          <p class="text-muted" style="font-size: 0.9rem; color: var(--accent);">There is no expiration date for points!</p>
+            <p class="text-muted" style="font-size: 0.9rem; color: var(--accent);">There is no expiration date for points!</p>
           </div>
         </div>
       </div>
@@ -113,7 +139,7 @@
             <p><strong>Free Espresso Shot</strong></p>
             <p class="text-muted" style="font-size: 0.8rem;">200 Points</p>
           </div>
-          <button class="btn ">Redeem</button>
+          <button class="btn">Redeem</button>
         </div>
         <div class="reward-item">
           <div class="reward-icon">🥐</div>
@@ -121,23 +147,23 @@
             <p><strong>Any Pastry</strong></p>
             <p class="text-muted" style="font-size: 0.8rem;">400 Points</p>
           </div>
-          <button class="btn ">Redeem</button>
+          <button class="btn">Redeem</button>
         </div>
-         <div class="reward-item">
-          <div class="reward-icon"></div>
+        <div class="reward-item">
+          <div class="reward-icon">✨</div>
           <div style="flex: 1;">
             <p><strong>Brew Member</strong></p>
             <p class="text-muted" style="font-size: 0.8rem;">500 Points</p>
           </div>
-          <button class="btn ">Redeem</button>
+          <button class="btn">Redeem</button>
         </div>
-         <div class="reward-item">
+        <div class="reward-item">
           <div class="reward-icon">🔥</div>
           <div style="flex: 1;">
             <p><strong>Gold Reserve</strong></p>
             <p class="text-muted" style="font-size: 0.8rem;">2,000 Points</p>
           </div>
-          <button class="btn ">Redeem</button>
+          <button class="btn">Redeem</button>
         </div>
       </div>
     </div>
@@ -153,12 +179,16 @@
     </aside>
   </main>
 
+<?php endif; ?>
+
+</main>
+
   <footer>
     <div class="footer-inner">
       <div class="footer-brand-col">
         <div class="footer-brand-name">NestledBrew</div>
         <p class="footer-brand-desc">
-          A sanctuary for coffee lovers and book enthusiasts in the heart of Cebu City. 
+          A sanctuary for coffee lovers and book enthusiasts in the heart of Cebu City.
           Sourcing ethically, brewing passionately since 2019.
         </p>
         <div class="footer-socials">
@@ -203,8 +233,6 @@
       <span>Made with ☕ in Cebu City</span>
     </div>
   </footer>
-
-
 
   <script src="homepage.js"></script>
 </body>
