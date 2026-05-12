@@ -1,6 +1,7 @@
 <?php
 require 'db.php';
 session_start();
+header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $first = trim($_POST['first_name'] ?? '');

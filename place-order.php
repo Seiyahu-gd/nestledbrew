@@ -135,13 +135,13 @@ $total = max($base_total + $delivery_fee - $discount_amount, 0);
 /* ============================================================
    STEP 5 — Validate points against user's actual balance
    ============================================================ */
-$user_stmt = $conn->prepare("SELECT points FROM users WHERE id = ?");
+$user_stmt = $conn->prepare("SELECT user_points FROM users WHERE id = ?");
 $user_stmt->bind_param('i', $user_id);
 $user_stmt->execute();
 $user_row = $user_stmt->get_result()->fetch_assoc();
 $user_stmt->close();
 
-$user_points = (int) ($user_row['points'] ?? 0);
+$user_points = (int) ($user_row['user_points'] ?? 0);
 
 // Revalidate: 100 pts = ₱10 off
 $max_redeemable = min($user_points, (int) ceil($base_total / 10 * 100));
@@ -220,7 +220,7 @@ try {
     $net_points = $points_earned - $points_used;
     $pts_stmt   = $conn->prepare("
         UPDATE users
-        SET points = GREATEST(0, points + ?)
+        SET user_points = GREATEST(0, user_points + ?)
         WHERE id = ?
     ");
     $pts_stmt->bind_param('ii', $net_points, $user_id);
@@ -228,8 +228,8 @@ try {
     $pts_stmt->close();
 
     // Update tier based on new points total
-    $new_points_row = $conn->query("SELECT points FROM users WHERE id = $user_id")->fetch_assoc();
-    $new_points     = (int) $new_points_row['points'];
+    $new_points_row = $conn->query("SELECT user_points FROM users WHERE id = $user_id")->fetch_assoc();
+    $new_points     = (int) $new_points_row['user_points'];
 
     if ($new_points >= 2000)     $new_tier = 'Gold Reserve';
     elseif ($new_points >= 500)  $new_tier = 'Brew Member';
@@ -252,13 +252,13 @@ try {
     $_SESSION['user_points'] = $new_points;
 
     echo json_encode([
-        'success'        => true,
-        'order_number'   => $order_number,
-        'points_earned'  => $points_earned,
-        'points_used'    => $points_used,
+        'success'          => true,
+        'order_number'     => $order_number,
+        'points_earned'    => $points_earned,
+        'points_used'      => $points_used,
         'new_points_total' => $new_points,
-        'new_tier'       => $new_tier,
-        'total'          => number_format($total, 2),
+        'new_tier'         => $new_tier,
+        'total'            => number_format($total, 2),
     ]);
 
 } catch (Exception $e) {

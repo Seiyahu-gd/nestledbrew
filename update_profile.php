@@ -34,7 +34,7 @@ if (mb_strlen($bio) > 160) {
     exit;
 }
 
-$stmt = $conn->prepare('UPDATE users SET name = ?, bio = ? WHERE id = ?');
+$stmt = $conn->prepare('UPDATE users SET first_name = ?, bio = ? WHERE id = ?');
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'Server error. Please try again.']);
     exit;
