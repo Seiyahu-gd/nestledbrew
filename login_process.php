@@ -29,7 +29,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param("s", $identifier
+$stmt->bind_param("s", $identifier);
 $stmt->execute();
 $result = $stmt->get_result();
 $user   = $result->fetch_assoc();

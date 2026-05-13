@@ -139,7 +139,7 @@
 
         <div class="team-card reveal reveal-delay-1">
           <div class="team-img-wrapper">
-          <img src="picutres/lyan.webp" alt="L" class="team-photo"> </div>
+          <img src="picutres/lyan.jpeg" alt="L" class="team-photo"> </div>
           <div class="team-name">Lyan Cryster Cuesta</div>
           <div class="team-role">Barista</div>
           <p class="team-bio">A certified bean enthusiast who keeps a personal journal tracking the flavor profiles of every coffee origin he has ever tasted.</p>
