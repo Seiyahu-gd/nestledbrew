@@ -110,7 +110,9 @@ if (isset($_SESSION['user_id'])) {
                                 <div class="card-content">
                                     <h3><?php echo $item['name']; ?></h3>
                                     <p class="price">₱<?php echo number_format($item['price'], 2); ?></p>
-                                    <button class="add-btn" onclick="addToCart('<?php echo htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8'); ?>')">+</button>
+                                    <div class="quantity-control" id="qty-<?php echo $item['id']; ?>">
+                                      <button class="add-btn" onclick="showQtyControl(<?php echo $item['id']; ?>)">+ Add</button>
+                                    </div>
                                 </div>
                             </div>
                         <?php endwhile; ?>

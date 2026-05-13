@@ -1102,6 +1102,9 @@ body.light-mode .leaflet-tile-pane { filter: none; }
   border-radius: var(--radius-lg);
   padding: 28px;
   transition: transform var(--transition), border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .testimonial-card:hover {
   transform: translateY(-4px);
@@ -1120,6 +1123,7 @@ body.light-mode .leaflet-tile-pane { filter: none; }
   line-height: 1.75;
   color: var(--text);
   margin-bottom: 20px;
+  flex-grow: 1;
 }
 .testimonial-author {
   display: flex;

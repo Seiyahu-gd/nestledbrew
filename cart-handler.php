@@ -24,6 +24,8 @@ switch ($action) {
 
 function addToCart($conn, $user_id) {
     $menu_item_id = intval($_POST['menu_item_id'] ?? 0);
+    $quantity     = max(1, intval($_POST['quantity'] ?? 1));
+
     if (!$menu_item_id) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid item']);
         return;
@@ -38,9 +40,9 @@ function addToCart($conn, $user_id) {
     }
     $check->close();
 
-    $stmt = $conn->prepare("INSERT INTO cart_items (user_id, menu_item_id, quantity) VALUES (?, ?, 1)
-                            ON DUPLICATE KEY UPDATE quantity = quantity + 1");
-    $stmt->bind_param("ii", $user_id, $menu_item_id);
+    $stmt = $conn->prepare("INSERT INTO cart_items (user_id, menu_item_id, quantity) VALUES (?, ?, ?)
+                            ON DUPLICATE KEY UPDATE quantity = quantity + ?");
+    $stmt->bind_param("iiii", $user_id, $menu_item_id, $quantity, $quantity);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Item added to cart']);
     } else {
